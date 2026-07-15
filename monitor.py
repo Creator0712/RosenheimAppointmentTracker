@@ -7,14 +7,22 @@ from config import TARGET_DATE
 from notifier import Notifier
 
 
-def get_earliest_date():
+def get_tracker_status():
+    """
+    Returns the current tracker status as a dictionary.
+    """
 
     api = AppointmentAPI()
 
     appointments = api.get_available_dates()
 
     if not appointments:
-        return None
+        return {
+            "earliest_date": None,
+            "target_date": TARGET_DATE,
+            "earlier_found": False,
+            "checked_at": datetime.now()
+        }
 
     dates = []
 
@@ -27,20 +35,29 @@ def get_earliest_date():
 
         dates.append(d)
 
-    return min(dates)
+    earliest = min(dates)
+
+    return {
+        "earliest_date": earliest,
+        "target_date": TARGET_DATE,
+        "earlier_found": earliest < TARGET_DATE,
+        "checked_at": datetime.now()
+    }
 
 
 async def main():
 
-    earliest = get_earliest_date()
+    status = get_tracker_status()
+
+    earliest = status["earliest_date"]
 
     if earliest is None:
-        print("No appointments.")
+        logger.info("No appointments available.")
         return
 
     logger.info(f"Earliest appointment: {earliest}")
 
-    if earliest >= TARGET_DATE:
+    if not status["earlier_found"]:
         logger.info("No earlier appointment found.")
         return
 
