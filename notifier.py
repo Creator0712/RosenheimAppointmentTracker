@@ -3,7 +3,12 @@ import json
 import asyncio
 from dotenv import load_dotenv
 from telegram import Bot
-from win11toast import toast
+import platform
+
+if platform.system() == "Windows":
+    from win11toast import toast
+else:
+    toast = None
 
 load_dotenv()
 
@@ -57,7 +62,11 @@ https://www.etermin.net/stadt-rosenheim-stva-qtermin
 
     def windows(self, appointment_date):
 
-        toast(
+        if toast is None:
+            return
+
+        toast
+        (
             "Rosenheim Appointment Tracker",
             f"Earlier appointment found!\n{appointment_date}"
         )
